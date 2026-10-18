@@ -10,11 +10,16 @@ allowBuilds:
   esbuild: true
   nx: true
 
-# The platform lives in the sibling repository ../modura. Packages here ask for the
-# version that is published to JSR, and these overrides point every one of them at the
-# local checkout. Remove them once the platform is installed from JSR (plan M9, step 5).
-overrides:
-  "@modura/schema": "link:../modura/packages/schema"
-  "@modura/sdk": "link:../modura/packages/sdk"
-  "@modura/cli": "link:../modura/packages/cli"
-  "@modura/mcp-server": "link:../modura/apps/mcp-server"
+# Platform packages are published to npm and pinned by version in package manifests.
+
+minimumReleaseAgeExclude:
+  - '@modura/cli@1.0.0-rc.3'
+  - '@modura/compiler@1.0.0-rc.3'
+  - '@modura/generator-mcp@1.0.0-rc.3'
+  - '@modura/generator-openapi@1.0.0-rc.3'
+  - '@modura/generator-sdk-ts@1.0.0-rc.3'
+  - '@modura/mcp-server@1.0.0-rc.3'
+  - '@modura/module-registry@1.0.0-rc.3'
+  - '@modura/runtime-contracts@1.0.0-rc.3'
+  - '@modura/schema@1.0.0-rc.3'
+  - '@modura/sdk@1.0.0-rc.3'

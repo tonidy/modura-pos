@@ -31,8 +31,8 @@
     }
   },
   "devDependencies": {
-    "@modura/cli": "1.0.0-rc.2",
-    "@modura/mcp-server": "1.0.0-rc.2",
+    "@modura/cli": "1.0.0-rc.3",
+    "@modura/mcp-server": "1.0.0-rc.3",
     "@modura/module-catalog": "workspace:*",
     "@modura/module-inventory": "workspace:*",
     "@modura/module-reports": "workspace:*",

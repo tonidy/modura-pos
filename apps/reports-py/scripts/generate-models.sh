@@ -12,8 +12,9 @@ cd "$(dirname "$0")/.."
 target=src/modura_reports/models.py
 out="$target"
 if [ "${1:-}" = "--check" ]; then
-  out="$(mktemp --suffix=.py)"
-  trap 'rm -f "$out"' EXIT
+  tmpdir="$(mktemp -d "${TMPDIR:-/tmp}/modura-models.XXXXXX")"
+  out="$tmpdir/models.py"
+  trap 'rm -rf "$tmpdir"' EXIT
 fi
 
 uv run --quiet datamodel-codegen \

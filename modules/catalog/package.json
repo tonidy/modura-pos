@@ -10,6 +10,6 @@
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@modura/schema": "1.0.0-rc.2"
+    "@modura/schema": "1.0.0-rc.3"
   }
 }
