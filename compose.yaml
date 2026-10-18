@@ -1,0 +1,22 @@
+# Local development database. Not used by the live demo deployment.
+services:
+  postgres:
+    image: docker.io/library/postgres:18-alpine
+    environment:
+      POSTGRES_USER: modura
+      POSTGRES_PASSWORD: modura
+      POSTGRES_DB: modura
+    ports:
+      # Override with MODURA_PG_PORT if the default is taken on your machine.
+      - "${MODURA_PG_PORT:-55433}:5432"
+    volumes:
+      # Postgres 18 images keep data under a version-specific subdirectory of this path.
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U modura -d modura"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+volumes:
+  pgdata:

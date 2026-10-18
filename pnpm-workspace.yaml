@@ -1,0 +1,20 @@
+packages:
+  - apps/*
+  - packages/*
+  - modules/*
+  - tests/*
+  - scripts
+
+# Dependencies whose install scripts may run (pnpm 11+; replaces onlyBuiltDependencies).
+allowBuilds:
+  esbuild: true
+  nx: true
+
+# The platform lives in the sibling repository ../modura. Packages here ask for the
+# version that is published to JSR, and these overrides point every one of them at the
+# local checkout. Remove them once the platform is installed from JSR (plan M9, step 5).
+overrides:
+  "@modura/schema": "link:../modura/packages/schema"
+  "@modura/sdk": "link:../modura/packages/sdk"
+  "@modura/cli": "link:../modura/packages/cli"
+  "@modura/mcp-server": "link:../modura/apps/mcp-server"

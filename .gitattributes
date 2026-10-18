@@ -1,0 +1,13 @@
+# Generated files are committed on purpose: `modura compat --against <ref>` reads the
+# IR from git history, reviewers see a contract change on every surface, and Go and
+# Python build without the TypeScript toolchain. Stale checks in `pnpm verify` keep
+# them in sync. Marking them generated only collapses them in GitHub diffs.
+generated/**                                 linguist-generated=true
+packages/pos-sdk/src/generated.ts            linguist-generated=true
+apps/sales-go/internal/api/api.gen.go        linguist-generated=true
+apps/reports-py/src/modura_reports/models.py linguist-generated=true
+
+# Lockfiles.
+pnpm-lock.yaml                               linguist-generated=true
+apps/reports-py/uv.lock                      linguist-generated=true
+apps/sales-go/go.sum                         linguist-generated=true

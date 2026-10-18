@@ -1,0 +1,36 @@
+name: Set up toolchains
+description: Node and pnpm always. Go, uv and the pnpm install are opt-in so each job pays only for what it uses.
+inputs:
+  install:
+    description: Run pnpm install --frozen-lockfile
+    default: "false"
+  go:
+    description: Install Go (with module and build cache)
+    default: "false"
+  uv:
+    description: Install uv and run uv sync for apps/reports-py
+    default: "false"
+runs:
+  using: composite
+  steps:
+    - uses: pnpm/action-setup@v4
+    - uses: actions/setup-node@v5
+      with:
+        node-version-file: .node-version
+        cache: pnpm
+    - uses: actions/setup-go@v6
+      if: inputs.go == 'true'
+      with:
+        go-version-file: apps/sales-go/go.mod
+        cache-dependency-path: apps/sales-go/go.sum
+    - uses: astral-sh/setup-uv@v6
+      if: inputs.uv == 'true'
+      with:
+        enable-cache: true
+        cache-dependency-glob: apps/reports-py/uv.lock
+    - if: inputs.install == 'true'
+      shell: bash
+      run: pnpm install --frozen-lockfile
+    - if: inputs.uv == 'true'
+      shell: bash
+      run: uv sync --locked --directory apps/reports-py

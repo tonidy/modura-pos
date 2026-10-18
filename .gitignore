@@ -1,0 +1,17 @@
+node_modules/
+dist/
+apps/sales-go/bin/
+test-results/
+playwright-report/
+coverage/
+.nx/cache/
+.nx/workspace-data/
+*.log
+.env
+.env.*
+!.env.example
+
+# Python (apps/reports-py)
+.venv/
+__pycache__/
+*.pyc

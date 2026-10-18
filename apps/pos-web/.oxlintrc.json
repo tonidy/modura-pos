@@ -1,0 +1,26 @@
+{
+  "$schema": "../../node_modules/oxlint/configuration_schema.json",
+  "rules": {
+    "no-restricted-globals": [
+      "error",
+      { "name": "fetch", "message": "Call Modura operations through the generated SDK (ADR-0005)." },
+      { "name": "XMLHttpRequest", "message": "Call Modura operations through the generated SDK (ADR-0005)." },
+      { "name": "EventSource", "message": "Call Modura operations through the generated SDK (ADR-0005)." }
+    ],
+    "no-restricted-properties": [
+      "error",
+      { "object": "window", "property": "fetch", "message": "Call Modura operations through the generated SDK (ADR-0005)." },
+      { "object": "globalThis", "property": "fetch", "message": "Call Modura operations through the generated SDK (ADR-0005)." }
+    ],
+    "no-restricted-imports": [
+      "error",
+      {
+        "paths": [
+          { "name": "axios", "message": "Call Modura operations through the generated SDK (ADR-0005)." },
+          { "name": "ky", "message": "Call Modura operations through the generated SDK (ADR-0005)." },
+          { "name": "ofetch", "message": "Call Modura operations through the generated SDK (ADR-0005)." }
+        ]
+      }
+    ]
+  }
+}

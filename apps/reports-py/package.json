@@ -1,0 +1,18 @@
+{
+  "name": "@modura/reports-py",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "generate": "bash scripts/generate-models.sh",
+    "generate-check": "bash scripts/generate-models.sh --check",
+    "test": "uv run pytest",
+    "dev": "uv run python -m modura_reports"
+  },
+  "nx": {
+    "targets": {
+      "test": {
+        "cache": false
+      }
+    }
+  }
+}

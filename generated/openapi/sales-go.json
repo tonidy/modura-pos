@@ -1,0 +1,720 @@
+{
+  "components": {
+    "schemas": {
+      "CatalogListProductsInput": {
+        "additionalProperties": false,
+        "properties": {},
+        "type": "object"
+      },
+      "CatalogListProductsOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "products": {
+            "items": {
+              "$ref": "#/components/schemas/CatalogProduct"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "products"
+        ],
+        "type": "object"
+      },
+      "CatalogProduct": {
+        "additionalProperties": false,
+        "description": "A product the cashier can sell.",
+        "properties": {
+          "category": {
+            "maxLength": 60,
+            "minLength": 1,
+            "type": "string"
+          },
+          "id": {
+            "$ref": "#/components/schemas/CatalogProductId"
+          },
+          "name": {
+            "maxLength": 120,
+            "minLength": 1,
+            "type": "string"
+          },
+          "price": {
+            "$ref": "#/components/schemas/Money"
+          },
+          "sku": {
+            "maxLength": 32,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "category",
+          "id",
+          "name",
+          "price",
+          "sku"
+        ],
+        "type": "object"
+      },
+      "CatalogProductId": {
+        "description": "Stable product identifier, for example \"prd_flat_white\".",
+        "pattern": "^prd_[a-z0-9_]{1,60}$",
+        "type": "string"
+      },
+      "Error": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "description": "Platform code or qualified domain code. Clients match on this, never on message.",
+            "type": "string"
+          },
+          "details": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "message": {
+            "type": "string"
+          },
+          "operation": {
+            "type": "string"
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "retryable": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "retryable"
+        ],
+        "type": "object"
+      },
+      "InventoryGetStockInput": {
+        "additionalProperties": false,
+        "properties": {
+          "productId": {
+            "$ref": "#/components/schemas/CatalogProductId"
+          }
+        },
+        "required": [
+          "productId"
+        ],
+        "type": "object"
+      },
+      "InventoryStockLevel": {
+        "additionalProperties": false,
+        "properties": {
+          "available": {
+            "description": "Units available to sell right now.",
+            "format": "int64",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "productId": {
+            "$ref": "#/components/schemas/CatalogProductId"
+          },
+          "updatedAt": {
+            "description": "When this stock level last changed.",
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "available",
+          "productId",
+          "updatedAt"
+        ],
+        "type": "object"
+      },
+      "Money": {
+        "additionalProperties": false,
+        "properties": {
+          "amountMinor": {
+            "description": "Amount in the currency's minor unit, for example cents.",
+            "format": "int64",
+            "type": "integer"
+          },
+          "currency": {
+            "description": "ISO 4217 code.",
+            "pattern": "^[A-Z]{3}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "amountMinor",
+          "currency"
+        ],
+        "type": "object"
+      },
+      "SalesCreateSaleInput": {
+        "additionalProperties": false,
+        "properties": {
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/SalesSaleLineInput"
+            },
+            "maxItems": 50,
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "lines"
+        ],
+        "type": "object"
+      },
+      "SalesSale": {
+        "additionalProperties": false,
+        "properties": {
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "$ref": "#/components/schemas/SalesSaleId"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/SalesSaleLine"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "total": {
+            "$ref": "#/components/schemas/Money"
+          }
+        },
+        "required": [
+          "createdAt",
+          "id",
+          "lines",
+          "total"
+        ],
+        "type": "object"
+      },
+      "SalesSaleCompletedEvent": {
+        "additionalProperties": false,
+        "description": "A sale was committed. Written to the outbox in the same transaction as the sale, delivered at least once.",
+        "properties": {
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "$ref": "#/components/schemas/SalesSaleId"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/SalesSaleLine"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "total": {
+            "$ref": "#/components/schemas/Money"
+          }
+        },
+        "required": [
+          "createdAt",
+          "id",
+          "lines",
+          "total"
+        ],
+        "type": "object",
+        "x-modura-event": "sales.saleCompleted"
+      },
+      "SalesSaleId": {
+        "description": "Server-generated sale identifier.",
+        "pattern": "^sale_[0-9a-z]{1,64}$",
+        "type": "string"
+      },
+      "SalesSaleLine": {
+        "additionalProperties": false,
+        "properties": {
+          "lineTotal": {
+            "$ref": "#/components/schemas/Money"
+          },
+          "productId": {
+            "$ref": "#/components/schemas/CatalogProductId"
+          },
+          "quantity": {
+            "format": "int64",
+            "maximum": 999,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "unitPrice": {
+            "$ref": "#/components/schemas/Money"
+          }
+        },
+        "required": [
+          "lineTotal",
+          "productId",
+          "quantity",
+          "unitPrice"
+        ],
+        "type": "object"
+      },
+      "SalesSaleLineInput": {
+        "additionalProperties": false,
+        "properties": {
+          "productId": {
+            "$ref": "#/components/schemas/CatalogProductId"
+          },
+          "quantity": {
+            "format": "int64",
+            "maximum": 999,
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "productId",
+          "quantity"
+        ],
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "scheme": "bearer",
+        "type": "http"
+      }
+    }
+  },
+  "info": {
+    "title": "Modura POS API: sales-go",
+    "version": "0.4.0"
+  },
+  "openapi": "3.0.3",
+  "paths": {
+    "/v1/catalog.listProducts": {
+      "post": {
+        "description": "List active, sellable products with their current prices. Inactive products are omitted.",
+        "operationId": "catalogListProducts",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CatalogListProductsInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogListProductsOutput"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "VALIDATION_FAILED",
+            "x-modura-error-codes": [
+              "VALIDATION_FAILED"
+            ]
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "UNAUTHENTICATED",
+            "x-modura-error-codes": [
+              "UNAUTHENTICATED"
+            ]
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "FORBIDDEN",
+            "x-modura-error-codes": [
+              "FORBIDDEN"
+            ]
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "RATE_LIMITED",
+            "x-modura-error-codes": [
+              "RATE_LIMITED"
+            ]
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "INTERNAL",
+            "x-modura-error-codes": [
+              "INTERNAL"
+            ]
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "UNAVAILABLE",
+            "x-modura-error-codes": [
+              "UNAVAILABLE"
+            ]
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "catalog.listProducts",
+        "tags": [
+          "catalog"
+        ],
+        "x-modura-idempotent": false,
+        "x-modura-kind": "query",
+        "x-modura-operation": "catalog.listProducts",
+        "x-modura-requires": [
+          "catalog.read"
+        ]
+      }
+    },
+    "/v1/inventory.getStock": {
+      "post": {
+        "description": "Return the authoritative available stock for one product.",
+        "operationId": "inventoryGetStock",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InventoryGetStockInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InventoryStockLevel"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "VALIDATION_FAILED",
+            "x-modura-error-codes": [
+              "VALIDATION_FAILED"
+            ]
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "UNAUTHENTICATED",
+            "x-modura-error-codes": [
+              "UNAUTHENTICATED"
+            ]
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "FORBIDDEN",
+            "x-modura-error-codes": [
+              "FORBIDDEN"
+            ]
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "inventory.PRODUCT_NOT_FOUND",
+            "x-modura-error-codes": [
+              "inventory.PRODUCT_NOT_FOUND"
+            ]
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "RATE_LIMITED",
+            "x-modura-error-codes": [
+              "RATE_LIMITED"
+            ]
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "INTERNAL",
+            "x-modura-error-codes": [
+              "INTERNAL"
+            ]
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "UNAVAILABLE",
+            "x-modura-error-codes": [
+              "UNAVAILABLE"
+            ]
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "inventory.getStock",
+        "tags": [
+          "inventory"
+        ],
+        "x-modura-idempotent": false,
+        "x-modura-kind": "query",
+        "x-modura-operation": "inventory.getStock",
+        "x-modura-requires": [
+          "inventory.read"
+        ]
+      }
+    },
+    "/v1/sales.createSale": {
+      "post": {
+        "description": "Sell the given products atomically. Prices come from the catalog, never from the client. Lines with the same product are merged before processing.",
+        "operationId": "salesCreateSale",
+        "parameters": [
+          {
+            "description": "Unique per attempt, for example per checkout. Retrying with the same key returns the original result.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SalesCreateSaleInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SalesSale"
+                }
+              }
+            },
+            "description": "Success.",
+            "headers": {
+              "Idempotent-Replayed": {
+                "description": "True when this response replays an earlier request with the same idempotency key.",
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "VALIDATION_FAILED",
+            "x-modura-error-codes": [
+              "VALIDATION_FAILED"
+            ]
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "UNAUTHENTICATED",
+            "x-modura-error-codes": [
+              "UNAUTHENTICATED"
+            ]
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "FORBIDDEN",
+            "x-modura-error-codes": [
+              "FORBIDDEN"
+            ]
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "IDEMPOTENCY_IN_PROGRESS, IDEMPOTENCY_KEY_REUSED",
+            "x-modura-error-codes": [
+              "IDEMPOTENCY_IN_PROGRESS",
+              "IDEMPOTENCY_KEY_REUSED"
+            ]
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "sales.INSUFFICIENT_STOCK, sales.PRODUCT_NOT_SELLABLE, sales.UNKNOWN_PRODUCT",
+            "x-modura-error-codes": [
+              "sales.INSUFFICIENT_STOCK",
+              "sales.PRODUCT_NOT_SELLABLE",
+              "sales.UNKNOWN_PRODUCT"
+            ]
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "RATE_LIMITED",
+            "x-modura-error-codes": [
+              "RATE_LIMITED"
+            ]
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "INTERNAL",
+            "x-modura-error-codes": [
+              "INTERNAL"
+            ]
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "UNAVAILABLE",
+            "x-modura-error-codes": [
+              "UNAVAILABLE"
+            ]
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "sales.createSale",
+        "tags": [
+          "sales"
+        ],
+        "x-modura-idempotent": true,
+        "x-modura-kind": "command",
+        "x-modura-operation": "sales.createSale",
+        "x-modura-requires": [
+          "sales.write"
+        ]
+      }
+    }
+  }
+}

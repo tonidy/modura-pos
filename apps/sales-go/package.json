@@ -1,0 +1,19 @@
+{
+  "name": "@modura/sales-go",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "generate": "go generate ./...",
+    "generate-check": "bash scripts/generate-check.sh",
+    "typecheck": "go vet ./...",
+    "test": "go test ./...",
+    "build": "go build ./..."
+  },
+  "nx": {
+    "targets": {
+      "test": {
+        "cache": false
+      }
+    }
+  }
+}

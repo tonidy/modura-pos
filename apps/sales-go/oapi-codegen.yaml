@@ -1,0 +1,12 @@
+# Generates Go types and a strict handler interface from the OpenAPI document that
+# `pnpm modura generate` derives from the IR. Run with `go generate ./...`.
+# The output path is passed with -o so scripts/generate-check.sh can redirect it.
+package: api
+generate:
+  std-http-server: true
+  strict-server: true
+  models: true
+  embedded-spec: true
+output-options:
+  # Event payload schemas are not referenced by any operation; keep their types.
+  skip-prune: true

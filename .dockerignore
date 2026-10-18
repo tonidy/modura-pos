@@ -1,0 +1,9 @@
+.git
+.nx
+**/node_modules
+**/dist
+apps/sales-go/bin
+test-results
+playwright-report
+.env
+.env.*

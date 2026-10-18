@@ -1,0 +1,27 @@
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "neverConnectToCloud": true,
+  "namedInputs": {
+    "default": ["{projectRoot}/**/*"],
+    "sharedGlobals": [
+      "{workspaceRoot}/tsconfig.base.json",
+      "{workspaceRoot}/generated/**/*"
+    ]
+  },
+  "targetDefaults": {
+    "typecheck": {
+      "cache": true,
+      "inputs": ["default", "^default", "sharedGlobals"]
+    },
+    "test": {
+      "cache": true,
+      "inputs": ["default", "^default", "sharedGlobals"]
+    },
+    "generate-check": {
+      "cache": false
+    },
+    "registry-check": {
+      "cache": false
+    }
+  }
+}

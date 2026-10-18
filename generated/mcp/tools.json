@@ -1,0 +1,394 @@
+{
+  "tools": [
+    {
+      "_meta": {
+        "modura/operation": "catalog.listProducts",
+        "modura/requires": [
+          "catalog.read"
+        ],
+        "modura/service": "sales-go"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true
+      },
+      "description": "List active, sellable products with their current prices. Inactive products are omitted.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {},
+        "type": "object"
+      },
+      "name": "catalog_listProducts",
+      "outputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "products": {
+            "items": {
+              "additionalProperties": false,
+              "description": "A product the cashier can sell.",
+              "properties": {
+                "category": {
+                  "maxLength": 60,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "id": {
+                  "description": "Stable product identifier, for example \"prd_flat_white\".",
+                  "pattern": "^prd_[a-z0-9_]{1,60}$",
+                  "type": "string"
+                },
+                "name": {
+                  "maxLength": 120,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "price": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "amountMinor": {
+                      "description": "Amount in the currency's minor unit, for example cents.",
+                      "format": "int64",
+                      "type": "integer"
+                    },
+                    "currency": {
+                      "description": "ISO 4217 code.",
+                      "pattern": "^[A-Z]{3}$",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "amountMinor",
+                    "currency"
+                  ],
+                  "type": "object"
+                },
+                "sku": {
+                  "maxLength": 32,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "category",
+                "id",
+                "name",
+                "price",
+                "sku"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "products"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "_meta": {
+        "modura/operation": "inventory.getStock",
+        "modura/requires": [
+          "inventory.read"
+        ],
+        "modura/service": "sales-go"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true
+      },
+      "description": "Return the authoritative available stock for one product.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "productId": {
+            "description": "Stable product identifier, for example \"prd_flat_white\".",
+            "pattern": "^prd_[a-z0-9_]{1,60}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "productId"
+        ],
+        "type": "object"
+      },
+      "name": "inventory_getStock",
+      "outputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "available": {
+            "description": "Units available to sell right now.",
+            "format": "int64",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "productId": {
+            "description": "Stable product identifier, for example \"prd_flat_white\".",
+            "pattern": "^prd_[a-z0-9_]{1,60}$",
+            "type": "string"
+          },
+          "updatedAt": {
+            "description": "When this stock level last changed.",
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "available",
+          "productId",
+          "updatedAt"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "_meta": {
+        "modura/operation": "reports.dailySummary",
+        "modura/requires": [
+          "reports.read"
+        ],
+        "modura/service": "reports-py"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true
+      },
+      "description": "Sales count, items sold, revenue and the top five products for one day (UTC), today by default.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "date": {
+            "description": "A calendar date in UTC, YYYY-MM-DD.",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "name": "reports_dailySummary",
+      "outputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "asOf": {
+            "description": "When the most recent sale this service has processed happened. Missing until the first one arrives.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "date": {
+            "description": "A calendar date in UTC, YYYY-MM-DD.",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+            "type": "string"
+          },
+          "itemsSold": {
+            "format": "int64",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "revenue": {
+            "description": "One total per currency; empty when nothing was sold.",
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "amountMinor": {
+                  "description": "Amount in the currency's minor unit, for example cents.",
+                  "format": "int64",
+                  "type": "integer"
+                },
+                "currency": {
+                  "description": "ISO 4217 code.",
+                  "pattern": "^[A-Z]{3}$",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "amountMinor",
+                "currency"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "salesCount": {
+            "format": "int64",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "topProducts": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "productId": {
+                  "description": "Stable product identifier, for example \"prd_flat_white\".",
+                  "pattern": "^prd_[a-z0-9_]{1,60}$",
+                  "type": "string"
+                },
+                "quantity": {
+                  "format": "int64",
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "revenue": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "amountMinor": {
+                      "description": "Amount in the currency's minor unit, for example cents.",
+                      "format": "int64",
+                      "type": "integer"
+                    },
+                    "currency": {
+                      "description": "ISO 4217 code.",
+                      "pattern": "^[A-Z]{3}$",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "amountMinor",
+                    "currency"
+                  ],
+                  "type": "object"
+                }
+              },
+              "required": [
+                "productId",
+                "quantity",
+                "revenue"
+              ],
+              "type": "object"
+            },
+            "maxItems": 5,
+            "type": "array"
+          }
+        },
+        "required": [
+          "date",
+          "itemsSold",
+          "revenue",
+          "salesCount",
+          "topProducts"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "_meta": {
+        "modura/operation": "reports.topProducts",
+        "modura/requires": [
+          "reports.read"
+        ],
+        "modura/service": "reports-py"
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true
+      },
+      "description": "Best-selling products over a date range (UTC, inclusive), by units sold.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "from": {
+            "description": "A calendar date in UTC, YYYY-MM-DD.",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+            "type": "string"
+          },
+          "limit": {
+            "format": "int64",
+            "maximum": 20,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "to": {
+            "description": "A calendar date in UTC, YYYY-MM-DD.",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "from",
+          "to"
+        ],
+        "type": "object"
+      },
+      "name": "reports_topProducts",
+      "outputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "asOf": {
+            "description": "When the most recent sale this service has processed happened. Missing until the first one arrives.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "from": {
+            "description": "A calendar date in UTC, YYYY-MM-DD.",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+            "type": "string"
+          },
+          "products": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "productId": {
+                  "description": "Stable product identifier, for example \"prd_flat_white\".",
+                  "pattern": "^prd_[a-z0-9_]{1,60}$",
+                  "type": "string"
+                },
+                "quantity": {
+                  "format": "int64",
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "revenue": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "amountMinor": {
+                      "description": "Amount in the currency's minor unit, for example cents.",
+                      "format": "int64",
+                      "type": "integer"
+                    },
+                    "currency": {
+                      "description": "ISO 4217 code.",
+                      "pattern": "^[A-Z]{3}$",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "amountMinor",
+                    "currency"
+                  ],
+                  "type": "object"
+                }
+              },
+              "required": [
+                "productId",
+                "quantity",
+                "revenue"
+              ],
+              "type": "object"
+            },
+            "maxItems": 20,
+            "type": "array"
+          },
+          "to": {
+            "description": "A calendar date in UTC, YYYY-MM-DD.",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "from",
+          "products",
+          "to"
+        ],
+        "type": "object"
+      }
+    }
+  ]
+}

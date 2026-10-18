@@ -1,0 +1,676 @@
+{
+  "ir": {
+    "irVersion": "1.0.0",
+    "modules": {
+      "catalog": {
+        "dependencies": [],
+        "description": "Sellable products and their current prices.",
+        "errors": {},
+        "events": {},
+        "operations": {
+          "listProducts": {
+            "description": "List active, sellable products with their current prices. Inactive products are omitted.",
+            "errors": [
+              "FORBIDDEN",
+              "INTERNAL",
+              "RATE_LIMITED",
+              "UNAUTHENTICATED",
+              "UNAVAILABLE",
+              "VALIDATION_FAILED"
+            ],
+            "expose": {
+              "mcp": true
+            },
+            "idempotent": false,
+            "input": {
+              "fields": {},
+              "kind": "object"
+            },
+            "kind": "query",
+            "output": {
+              "fields": {
+                "products": {
+                  "required": true,
+                  "type": {
+                    "items": {
+                      "kind": "ref",
+                      "name": "catalog.Product"
+                    },
+                    "kind": "array"
+                  }
+                }
+              },
+              "kind": "object"
+            },
+            "requires": [
+              "catalog.read"
+            ]
+          }
+        },
+        "permissions": {
+          "read": {
+            "description": "Read the product catalog."
+          }
+        },
+        "subscribes": [],
+        "version": "0.1.0"
+      },
+      "inventory": {
+        "dependencies": [
+          "catalog"
+        ],
+        "description": "Authoritative stock levels for sellable products.",
+        "errors": {
+          "PRODUCT_NOT_FOUND": {
+            "category": "not_found",
+            "description": "No product exists with this identifier. A known product with no stock returns available: 0 instead.",
+            "retryable": false
+          }
+        },
+        "events": {},
+        "operations": {
+          "getStock": {
+            "description": "Return the authoritative available stock for one product.",
+            "errors": [
+              "FORBIDDEN",
+              "INTERNAL",
+              "RATE_LIMITED",
+              "UNAUTHENTICATED",
+              "UNAVAILABLE",
+              "VALIDATION_FAILED",
+              "inventory.PRODUCT_NOT_FOUND"
+            ],
+            "expose": {
+              "mcp": true
+            },
+            "idempotent": false,
+            "input": {
+              "fields": {
+                "productId": {
+                  "required": true,
+                  "type": {
+                    "kind": "ref",
+                    "name": "catalog.ProductId"
+                  }
+                }
+              },
+              "kind": "object"
+            },
+            "kind": "query",
+            "output": {
+              "kind": "ref",
+              "name": "inventory.StockLevel"
+            },
+            "requires": [
+              "inventory.read"
+            ]
+          }
+        },
+        "permissions": {
+          "read": {
+            "description": "Read stock levels."
+          }
+        },
+        "subscribes": [],
+        "version": "0.1.0"
+      },
+      "reports": {
+        "dependencies": [
+          "catalog",
+          "sales"
+        ],
+        "description": "Sales reports built from completed sales, eventually consistent.",
+        "errors": {
+          "INVALID_RANGE": {
+            "category": "unprocessable",
+            "description": "The date range is reversed or longer than 92 days.",
+            "retryable": false
+          }
+        },
+        "events": {},
+        "operations": {
+          "dailySummary": {
+            "description": "Sales count, items sold, revenue and the top five products for one day (UTC), today by default.",
+            "errors": [
+              "FORBIDDEN",
+              "INTERNAL",
+              "RATE_LIMITED",
+              "UNAUTHENTICATED",
+              "UNAVAILABLE",
+              "VALIDATION_FAILED"
+            ],
+            "expose": {
+              "mcp": true
+            },
+            "idempotent": false,
+            "input": {
+              "fields": {
+                "date": {
+                  "required": false,
+                  "type": {
+                    "kind": "ref",
+                    "name": "reports.ReportDate"
+                  }
+                }
+              },
+              "kind": "object"
+            },
+            "kind": "query",
+            "output": {
+              "kind": "ref",
+              "name": "reports.DaySummary"
+            },
+            "requires": [
+              "reports.read"
+            ]
+          },
+          "topProducts": {
+            "description": "Best-selling products over a date range (UTC, inclusive), by units sold.",
+            "errors": [
+              "FORBIDDEN",
+              "INTERNAL",
+              "RATE_LIMITED",
+              "UNAUTHENTICATED",
+              "UNAVAILABLE",
+              "VALIDATION_FAILED",
+              "reports.INVALID_RANGE"
+            ],
+            "expose": {
+              "mcp": true
+            },
+            "idempotent": false,
+            "input": {
+              "fields": {
+                "from": {
+                  "required": true,
+                  "type": {
+                    "kind": "ref",
+                    "name": "reports.ReportDate"
+                  }
+                },
+                "limit": {
+                  "required": false,
+                  "type": {
+                    "kind": "integer",
+                    "maximum": 20,
+                    "minimum": 1
+                  }
+                },
+                "to": {
+                  "required": true,
+                  "type": {
+                    "kind": "ref",
+                    "name": "reports.ReportDate"
+                  }
+                }
+              },
+              "kind": "object"
+            },
+            "kind": "query",
+            "output": {
+              "fields": {
+                "asOf": {
+                  "required": false,
+                  "type": {
+                    "description": "When the most recent sale this service has processed happened. Missing until the first one arrives.",
+                    "kind": "timestamp"
+                  }
+                },
+                "from": {
+                  "required": true,
+                  "type": {
+                    "kind": "ref",
+                    "name": "reports.ReportDate"
+                  }
+                },
+                "products": {
+                  "required": true,
+                  "type": {
+                    "items": {
+                      "kind": "ref",
+                      "name": "reports.ProductSales"
+                    },
+                    "kind": "array",
+                    "maxItems": 20
+                  }
+                },
+                "to": {
+                  "required": true,
+                  "type": {
+                    "kind": "ref",
+                    "name": "reports.ReportDate"
+                  }
+                }
+              },
+              "kind": "object"
+            },
+            "requires": [
+              "reports.read"
+            ]
+          }
+        },
+        "permissions": {
+          "read": {
+            "description": "Read sales reports."
+          }
+        },
+        "subscribes": [
+          "sales.saleCompleted"
+        ],
+        "version": "0.1.0"
+      },
+      "sales": {
+        "dependencies": [
+          "catalog"
+        ],
+        "description": "Checkout at the register.",
+        "errors": {
+          "INSUFFICIENT_STOCK": {
+            "category": "unprocessable",
+            "description": "At least one line asks for more units than are available. Nothing was sold.",
+            "retryable": false
+          },
+          "PRODUCT_NOT_SELLABLE": {
+            "category": "unprocessable",
+            "description": "A line refers to a product that is no longer active.",
+            "retryable": false
+          },
+          "UNKNOWN_PRODUCT": {
+            "category": "unprocessable",
+            "description": "A line refers to a product that does not exist.",
+            "retryable": false
+          }
+        },
+        "events": {
+          "saleCompleted": {
+            "description": "A sale was committed. Written to the outbox in the same transaction as the sale, delivered at least once.",
+            "payload": {
+              "kind": "ref",
+              "name": "sales.Sale"
+            }
+          }
+        },
+        "operations": {
+          "createSale": {
+            "description": "Sell the given products atomically. Prices come from the catalog, never from the client. Lines with the same product are merged before processing.",
+            "errors": [
+              "FORBIDDEN",
+              "IDEMPOTENCY_IN_PROGRESS",
+              "IDEMPOTENCY_KEY_REUSED",
+              "INTERNAL",
+              "RATE_LIMITED",
+              "UNAUTHENTICATED",
+              "UNAVAILABLE",
+              "VALIDATION_FAILED",
+              "sales.INSUFFICIENT_STOCK",
+              "sales.PRODUCT_NOT_SELLABLE",
+              "sales.UNKNOWN_PRODUCT"
+            ],
+            "expose": {
+              "mcp": false
+            },
+            "idempotent": true,
+            "input": {
+              "fields": {
+                "lines": {
+                  "required": true,
+                  "type": {
+                    "items": {
+                      "kind": "ref",
+                      "name": "sales.SaleLineInput"
+                    },
+                    "kind": "array",
+                    "maxItems": 50,
+                    "minItems": 1
+                  }
+                }
+              },
+              "kind": "object"
+            },
+            "kind": "command",
+            "output": {
+              "kind": "ref",
+              "name": "sales.Sale"
+            },
+            "requires": [
+              "sales.write"
+            ]
+          }
+        },
+        "permissions": {
+          "write": {
+            "description": "Create sales at the register."
+          }
+        },
+        "subscribes": [],
+        "version": "0.2.0"
+      }
+    },
+    "platformErrors": {
+      "FORBIDDEN": {
+        "category": "forbidden",
+        "description": "The identity lacks a permission the operation requires.",
+        "retryable": false
+      },
+      "IDEMPOTENCY_IN_PROGRESS": {
+        "category": "conflict",
+        "description": "Another request with the same idempotency key did not finish within the lock timeout.",
+        "retryable": true
+      },
+      "IDEMPOTENCY_KEY_REUSED": {
+        "category": "conflict",
+        "description": "The idempotency key was already used with a different request.",
+        "retryable": false
+      },
+      "INTERNAL": {
+        "category": "internal",
+        "description": "An unexpected server error. Details are logged, not returned.",
+        "retryable": false
+      },
+      "RATE_LIMITED": {
+        "category": "rate_limited",
+        "description": "Too many requests from this client.",
+        "retryable": true
+      },
+      "UNAUTHENTICATED": {
+        "category": "unauthenticated",
+        "description": "The request has no valid identity.",
+        "retryable": false
+      },
+      "UNAVAILABLE": {
+        "category": "unavailable",
+        "description": "A dependency such as the database is temporarily unavailable.",
+        "retryable": true
+      },
+      "VALIDATION_FAILED": {
+        "category": "validation",
+        "description": "The request does not match the operation input schema.",
+        "retryable": false
+      }
+    },
+    "types": {
+      "catalog.Product": {
+        "description": "A product the cashier can sell.",
+        "fields": {
+          "category": {
+            "required": true,
+            "type": {
+              "kind": "string",
+              "maxLength": 60,
+              "minLength": 1
+            }
+          },
+          "id": {
+            "required": true,
+            "type": {
+              "kind": "ref",
+              "name": "catalog.ProductId"
+            }
+          },
+          "name": {
+            "required": true,
+            "type": {
+              "kind": "string",
+              "maxLength": 120,
+              "minLength": 1
+            }
+          },
+          "price": {
+            "required": true,
+            "type": {
+              "description": "Current unit price.",
+              "kind": "money"
+            }
+          },
+          "sku": {
+            "required": true,
+            "type": {
+              "kind": "string",
+              "maxLength": 32,
+              "minLength": 1
+            }
+          }
+        },
+        "kind": "object"
+      },
+      "catalog.ProductId": {
+        "description": "Stable product identifier, for example \"prd_flat_white\".",
+        "kind": "string",
+        "pattern": "^prd_[a-z0-9_]{1,60}$"
+      },
+      "inventory.StockLevel": {
+        "fields": {
+          "available": {
+            "required": true,
+            "type": {
+              "description": "Units available to sell right now.",
+              "kind": "integer",
+              "minimum": 0
+            }
+          },
+          "productId": {
+            "required": true,
+            "type": {
+              "kind": "ref",
+              "name": "catalog.ProductId"
+            }
+          },
+          "updatedAt": {
+            "required": true,
+            "type": {
+              "description": "When this stock level last changed.",
+              "kind": "timestamp"
+            }
+          }
+        },
+        "kind": "object"
+      },
+      "reports.DaySummary": {
+        "fields": {
+          "asOf": {
+            "required": false,
+            "type": {
+              "description": "When the most recent sale this service has processed happened. Missing until the first one arrives.",
+              "kind": "timestamp"
+            }
+          },
+          "date": {
+            "required": true,
+            "type": {
+              "kind": "ref",
+              "name": "reports.ReportDate"
+            }
+          },
+          "itemsSold": {
+            "required": true,
+            "type": {
+              "kind": "integer",
+              "minimum": 0
+            }
+          },
+          "revenue": {
+            "required": true,
+            "type": {
+              "description": "One total per currency; empty when nothing was sold.",
+              "items": {
+                "kind": "money"
+              },
+              "kind": "array"
+            }
+          },
+          "salesCount": {
+            "required": true,
+            "type": {
+              "kind": "integer",
+              "minimum": 0
+            }
+          },
+          "topProducts": {
+            "required": true,
+            "type": {
+              "items": {
+                "kind": "ref",
+                "name": "reports.ProductSales"
+              },
+              "kind": "array",
+              "maxItems": 5
+            }
+          }
+        },
+        "kind": "object"
+      },
+      "reports.ProductSales": {
+        "fields": {
+          "productId": {
+            "required": true,
+            "type": {
+              "kind": "ref",
+              "name": "catalog.ProductId"
+            }
+          },
+          "quantity": {
+            "required": true,
+            "type": {
+              "kind": "integer",
+              "minimum": 0
+            }
+          },
+          "revenue": {
+            "required": true,
+            "type": {
+              "kind": "money"
+            }
+          }
+        },
+        "kind": "object"
+      },
+      "reports.ReportDate": {
+        "description": "A calendar date in UTC, YYYY-MM-DD.",
+        "kind": "string",
+        "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+      },
+      "sales.Sale": {
+        "fields": {
+          "createdAt": {
+            "required": true,
+            "type": {
+              "kind": "timestamp"
+            }
+          },
+          "id": {
+            "required": true,
+            "type": {
+              "kind": "ref",
+              "name": "sales.SaleId"
+            }
+          },
+          "lines": {
+            "required": true,
+            "type": {
+              "items": {
+                "kind": "ref",
+                "name": "sales.SaleLine"
+              },
+              "kind": "array",
+              "minItems": 1
+            }
+          },
+          "total": {
+            "required": true,
+            "type": {
+              "kind": "money"
+            }
+          }
+        },
+        "kind": "object"
+      },
+      "sales.SaleId": {
+        "description": "Server-generated sale identifier.",
+        "kind": "string",
+        "pattern": "^sale_[0-9a-z]{1,64}$"
+      },
+      "sales.SaleLine": {
+        "fields": {
+          "lineTotal": {
+            "required": true,
+            "type": {
+              "description": "unitPrice multiplied by quantity.",
+              "kind": "money"
+            }
+          },
+          "productId": {
+            "required": true,
+            "type": {
+              "kind": "ref",
+              "name": "catalog.ProductId"
+            }
+          },
+          "quantity": {
+            "required": true,
+            "type": {
+              "kind": "integer",
+              "maximum": 999,
+              "minimum": 1
+            }
+          },
+          "unitPrice": {
+            "required": true,
+            "type": {
+              "description": "Catalog price snapshotted when the sale was created.",
+              "kind": "money"
+            }
+          }
+        },
+        "kind": "object"
+      },
+      "sales.SaleLineInput": {
+        "fields": {
+          "productId": {
+            "required": true,
+            "type": {
+              "kind": "ref",
+              "name": "catalog.ProductId"
+            }
+          },
+          "quantity": {
+            "required": true,
+            "type": {
+              "kind": "integer",
+              "maximum": 999,
+              "minimum": 1
+            }
+          }
+        },
+        "kind": "object"
+      }
+    }
+  },
+  "release": {
+    "changes": [],
+    "summary": {
+      "irSha256": "12c6a6ea2beccb4739fd5bbadffed0477a143a6564658496ba8a229886d47bbb",
+      "irVersion": "1.0.0",
+      "modules": [
+        {
+          "name": "catalog",
+          "version": "0.1.0"
+        },
+        {
+          "name": "inventory",
+          "version": "0.1.0"
+        },
+        {
+          "name": "reports",
+          "version": "0.1.0"
+        },
+        {
+          "name": "sales",
+          "version": "0.2.0"
+        }
+      ],
+      "number": 1,
+      "publishedAt": "2026-10-18T12:36:16.497Z",
+      "publishedBy": "g"
+    }
+  }
+}

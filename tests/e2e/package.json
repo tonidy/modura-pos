@@ -1,0 +1,24 @@
+{
+  "name": "@modura/e2e",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "e2e": "playwright test",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/sdk": "1.32.1",
+    "@playwright/test": "1.64.0",
+    "@types/pg": "8.23.1",
+    "pg": "8.23.1"
+  },
+  "nx": {
+    "implicitDependencies": ["@modura/pos-web", "@modura/sales-go", "@modura/reports-py"],
+    "targets": {
+      "e2e": {
+        "cache": false
+      }
+    }
+  }
+}

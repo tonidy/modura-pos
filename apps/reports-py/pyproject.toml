@@ -1,0 +1,28 @@
+[project]
+name = "modura-reports"
+version = "0.1.0"
+description = "Modura reports service: sales reports built from the sales.saleCompleted outbox."
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi==0.143.0",
+    "uvicorn==0.54.0",
+    "pydantic==2.14.0",
+    "psycopg[binary]==3.3.6",
+    "psycopg-pool==3.3.3",
+    "openapi-core==0.23.1",
+]
+
+[dependency-groups]
+dev = [
+    "pytest==9.1.1",
+    "httpx==0.28.1",
+    "datamodel-code-generator==0.83.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.12,<0.13"]
+build-backend = "uv_build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-p no:cacheprovider"

@@ -1,0 +1,47 @@
+{
+  "name": "modura-pos",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.14.0",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "verify": "nx run-many -t typecheck lint test generate-check registry-check",
+    "web": "pnpm --filter @modura/pos-web run dev",
+    "e2e": "pnpm --filter @modura/e2e run e2e",
+    "demo": "bash scripts/demo-schema-change.sh",
+    "modura": "tsx scripts/modura.ts",
+    "mcp": "tsx scripts/mcp.ts",
+    "generate": "pnpm modura generate && pnpm --filter @modura/sales-go --filter @modura/reports-py run generate",
+    "api": "DATABASE_URL=${DATABASE_URL:-postgres://modura:modura@localhost:${MODURA_PG_PORT:-55433}/modura?sslmode=disable} go -C apps/sales-go run ./cmd/sales-api",
+    "reports": "DATABASE_URL=${DATABASE_URL:-postgres://modura:modura@localhost:${MODURA_PG_PORT:-55433}/modura?sslmode=disable} MODURA_CORS_ORIGINS=${MODURA_CORS_ORIGINS:-http://localhost:5173} uv --directory apps/reports-py run python -m modura_reports",
+    "db:up": "docker compose up -d --wait postgres",
+    "db:down": "docker compose down",
+    "db:reset": "bash db/reset.sh"
+  },
+  "nx": {
+    "targets": {
+      "generate-check": {
+        "command": "tsx scripts/modura.ts generate --check --strict"
+      },
+      "registry-check": {
+        "command": "tsx scripts/modura.ts registry verify && tsx scripts/modura.ts compat --against registry"
+      }
+    }
+  },
+  "devDependencies": {
+    "@modura/cli": "1.0.0-rc.2",
+    "@modura/mcp-server": "1.0.0-rc.2",
+    "@modura/module-catalog": "workspace:*",
+    "@modura/module-inventory": "workspace:*",
+    "@modura/module-reports": "workspace:*",
+    "@modura/module-sales": "workspace:*",
+    "@types/node": "^24.19.2",
+    "nx": "23.3.0",
+    "oxlint": "1.87.0",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2",
+    "vitest": "5.0.3"
+  }
+}

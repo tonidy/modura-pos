@@ -1,0 +1,34 @@
+# Fly.io config for the live demo. Change `app` to a name you own before the first
+# deploy. The only secret is DATABASE_URL; see docs/deploy.md.
+app = "modura-pos"
+primary_region = "ams"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  # Fly's proxy sets and overwrites this header, so clients cannot spoof their bucket.
+  MODURA_CLIENT_IP_HEADER = "Fly-Client-IP"
+  MODURA_CHECKOUTS_PER_MIN = "30"
+  MODURA_DEMO_MODE = "true"
+  MODURA_DEMO_RESET_AT = "03:00"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_start_machines = true
+  # Keep exactly one machine. The rate limiter and the demo jobs live in the
+  # process, and the nightly reset only runs on a machine that is awake.
+  auto_stop_machines = "off"
+  min_machines_running = 1
+
+  [[http_service.checks]]
+    method = "GET"
+    path = "/healthz"
+    interval = "15s"
+    timeout = "5s"
+    grace_period = "20s"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"

@@ -1,0 +1,204 @@
+name: CI
+
+# The checks that `pnpm verify` runs in one go locally are split across parallel jobs
+# here, so the run takes as long as its slowest job. Every target of `pnpm verify` is
+# covered by exactly one job below:
+#   typecheck, lint, test, generate-check, registry-check: ts (TypeScript projects),
+#                                                         go and python (their own projects)
+# Jobs that touch Postgres have their own service container and MODURA_REQUIRE_DB=1,
+# so a missing database fails the run instead of skipping tests.
+
+# Manual runs only. The POS reaches the platform through pnpm overrides that link to the
+# sibling folder ../modura, which GitHub's runners cannot see. The push and pull_request
+# triggers come back in plan M9, step 5, when the POS installs the platform from JSR.
+on:
+  workflow_dispatch:
+
+env:
+  NX_DAEMON: "false"
+
+jobs:
+  # TypeScript projects: typecheck, lint, unit tests, stale-artifact and registry checks.
+  # fetch-depth 0 because `registry verify` reads release history from git.
+  ts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/setup
+        with:
+          install: "true"
+      - run: >-
+          pnpm nx run-many --parallel=4
+          -t typecheck lint test generate-check registry-check
+          --exclude=@modura/sales-go,@modura/reports-py
+
+  # Go (the POS service): vet, tests (contract and concurrency tests
+  # against Postgres) and the stale oapi-codegen output check. Needs no node_modules: pnpm only runs the package scripts.
+  go:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: modura
+          POSTGRES_PASSWORD: modura
+          POSTGRES_DB: modura
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U modura -d modura"
+          --health-interval 2s
+          --health-timeout 3s
+          --health-retries 15
+    env:
+      DATABASE_URL: postgres://modura:modura@localhost:5432/modura?sslmode=disable
+      MODURA_REQUIRE_DB: "1"
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup
+        with:
+          go: "true"
+      - run: pnpm --filter @modura/sales-go run typecheck
+      - run: pnpm --filter @modura/sales-go run test
+      - run: pnpm --filter @modura/sales-go run generate-check
+
+  # Python reports service: tests against Postgres and the stale pydantic models check.
+  python:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: modura
+          POSTGRES_PASSWORD: modura
+          POSTGRES_DB: modura
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U modura -d modura"
+          --health-interval 2s
+          --health-timeout 3s
+          --health-retries 15
+    env:
+      DATABASE_URL: postgres://modura:modura@localhost:5432/modura?sslmode=disable
+      MODURA_REQUIRE_DB: "1"
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup
+        with:
+          uv: "true"
+      - run: pnpm --filter @modura/reports-py run test
+      - run: pnpm --filter @modura/reports-py run generate-check
+
+  # Regenerate everything and fail on any diff.
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup
+        with:
+          install: "true"
+          go: "true"
+          uv: "true"
+      - run: pnpm generate && git diff --exit-code
+
+  # The README's schema-change demo, as a check: guard, regeneration, determinism,
+  # compile errors in stale call sites, and green again after the fix. It works in a
+  # throwaway worktree of HEAD and installs its own dependencies from the pnpm store.
+  demo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/setup
+        with:
+          install: "true"
+          go: "true"
+          uv: "true"
+      - run: pnpm demo
+
+  # Pull requests only: compare against the base branch (needs its history).
+  base-branch:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/setup
+        with:
+          install: "true"
+      - name: Contract compatibility with the base branch
+        run: pnpm modura compat --against origin/${{ github.base_ref }}
+      # The file registry (ADR-0012): releases on the base branch are unchanged, and any
+      # new release is exactly what `modura publish` would have written. Make this a
+      # required check, or anyone who can push can rewrite the history.
+      - name: Release history is append-only
+        run: pnpm modura registry verify --since origin/${{ github.base_ref }}
+
+  # UI -> generated SDK -> Go -> Postgres, in a real browser, then the sale
+  # through the outbox into the Python reports service.
+  e2e:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: modura
+          POSTGRES_PASSWORD: modura
+          POSTGRES_DB: modura
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U modura -d modura"
+          --health-interval 2s
+          --health-timeout 3s
+          --health-retries 15
+    env:
+      MODURA_REQUIRE_DB: "1"
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup
+        with:
+          install: "true"
+          go: "true"
+          uv: "true"
+      # Cache the browser download, keyed on the Playwright version. System libraries
+      # live outside the cache, so they are installed on every run.
+      - id: playwright
+        run: echo "version=$(node -p "require('./tests/e2e/package.json').devDependencies['@playwright/test']")" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        id: browsers
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}-chromium
+      - if: steps.browsers.outputs.cache-hit != 'true'
+        run: pnpm --filter @modura/e2e exec playwright install --with-deps chromium
+      - if: steps.browsers.outputs.cache-hit == 'true'
+        run: pnpm --filter @modura/e2e exec playwright install-deps chromium
+      - run: pnpm e2e
+        env:
+          E2E_DATABASE_URL: postgres://modura:modura@localhost:5432/modura_e2e?sslmode=disable
+          DATABASE_URL: postgres://modura:modura@localhost:5432/modura?sslmode=disable
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-traces
+          path: tests/e2e/test-results
+
+  image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: docker/setup-buildx-action@v3
+      - name: Build the deployable image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          tags: modura-pos:ci
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
