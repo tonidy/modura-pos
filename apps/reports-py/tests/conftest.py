@@ -64,7 +64,8 @@ async def pool(database_url: str) -> AsyncIterator[AsyncConnectionPool]:
         await migrate(conn, MIGRATIONS)
         # TRUNCATE bypasses the outbox's append-only row trigger, as it should for tests.
         await conn.execute(
-            "TRUNCATE reports.sale_lines, reports.sales, reports.inbox, reports.consumer_state, public.outbox"
+            "TRUNCATE reports.sale_lines, reports.sales, reports.inbox, reports.dead_letters, "
+            "reports.consumer_state, public.outbox"
         )
     yield pool
     await pool.close()

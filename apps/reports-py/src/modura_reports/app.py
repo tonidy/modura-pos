@@ -124,11 +124,17 @@ def create_app(settings: Settings, pool: AsyncConnectionPool | None = None) -> F
 
     @app.get("/healthz")
     async def health() -> JSONResponse:
+        """Dead letters make the status "degraded" but keep 200: the service is
+        serving, and restarting it would not bring the missing sales back."""
         try:
             async with pool.connection() as conn:
                 last = await queries.as_of(conn)
+                dead, last_dead = await queries.dead_letters(conn)
         except Exception:
             return JSONResponse({"status": "database unavailable"}, status_code=503)
-        return JSONResponse({"status": "ok", "consumer": {"asOf": last.isoformat() if last else None}})
+        consumer: dict[str, object] = {"asOf": last.isoformat() if last else None, "deadLetters": dead}
+        if last_dead:
+            consumer["lastDeadLetterAt"] = last_dead.isoformat()
+        return JSONResponse({"status": "degraded" if dead else "ok", "consumer": consumer})
 
     return app

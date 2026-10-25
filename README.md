@@ -136,7 +136,7 @@ Nothing is listed as shipped unless a command, a test or a file proves it.
 | Browser E2E from UI to Postgres, and an MCP client against the real services | [`tests/e2e`](tests/e2e) |
 | Per-IP rate limiting, demo replenishment and nightly reset | [`operations_test.go`](apps/sales-go/internal/httpapi/operations_test.go), [`restock_test.go`](apps/sales-go/internal/store/restock_test.go) |
 | Reports service in Python owning its own module, with per-service OpenAPI and client-side routing | [`apps/reports-py`](apps/reports-py), [`ownership_test.go`](apps/sales-go/internal/httpapi/ownership_test.go) |
-| Transactional outbox and an idempotent consumer that never skips a late commit or stalls behind other transactions | [`outbox_test.go`](apps/sales-go/internal/httpapi/outbox_test.go), [`test_consumer.py`](apps/reports-py/tests/test_consumer.py) |
+| Transactional outbox and an idempotent consumer that never skips a late commit, stalls behind other transactions, or stops at a bad event (it is dead-lettered and shown in `/healthz`) | [`outbox_test.go`](apps/sales-go/internal/httpapi/outbox_test.go), [`test_consumer.py`](apps/reports-py/tests/test_consumer.py) |
 | CORS with an origin allowlist, CSP `connect-src` from configuration | [`test_cors.py`](apps/reports-py/tests/test_cors.py), [`operations_test.go`](apps/sales-go/internal/httpapi/operations_test.go) |
 | Contract release history in git | [`contracts/releases`](contracts/releases) |
 | Fly.io config and runbook | [`fly.toml`](fly.toml), [docs/deploy.md](docs/deploy.md) |

@@ -88,6 +88,22 @@ async def test_authentication_authorization_and_validation_come_from_the_contrac
     assert bad_date.json()["requestId"].startswith("req_")
 
 
+async def test_health_turns_degraded_when_an_event_is_dead_lettered(client, pool):
+    healthy = (await client.get("/healthz")).json()
+    assert healthy["status"] == "ok" and healthy["consumer"]["deadLetters"] == 0
+
+    async with pool.connection() as conn:
+        await publish(conn, {"id": "sale_broken"})
+    async with pool.connection() as conn:
+        await consume_once(conn)
+
+    response = await client.get("/healthz")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "degraded"
+    assert body["consumer"]["deadLetters"] == 1 and "lastDeadLetterAt" in body["consumer"]
+
+
 def test_error_catalog_matches_the_ir():
     ir = json.loads((ROOT / "generated" / "ir" / "modura.ir.json").read_text())
     contract = dict(ir["platformErrors"])

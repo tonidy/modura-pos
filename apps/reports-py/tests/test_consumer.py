@@ -90,3 +90,40 @@ async def test_unknown_events_and_unknown_payload_fields_are_ignored(pool):
 
     assert await consume(pool) == 1
     assert await sales_count(pool) == 1
+
+
+async def dead_letters(pool) -> list[tuple]:
+    async with pool.connection() as conn:
+        return await (
+            await conn.execute("SELECT event_id, event, error FROM reports.dead_letters ORDER BY failed_at")
+        ).fetchall()
+
+
+async def test_a_poison_event_is_dead_lettered_and_the_rest_are_applied(pool):
+    async with pool.connection() as conn:
+        await publish(conn, sale_payload("sale_before", NOW, [("prd_espresso", 1, 300)]))
+        poison = await publish(conn, {"id": "sale_broken"})
+        await publish(conn, sale_payload("sale_after", NOW, [("prd_croissant", 1, 375)]))
+
+    assert await consume(pool) == 2
+    assert await sales_count(pool) == 2
+    [(event_id, event, error)] = await dead_letters(pool)
+    assert (event_id, event) == (poison, "sales.saleCompleted")
+    assert "createdAt" in error
+
+    # Later rounds re-read the poison event but neither retry nor record it again.
+    async with pool.connection() as conn:
+        await conn.execute("UPDATE reports.consumer_state SET horizon = '0'")
+    assert await consume(pool) == 0
+    assert len(await dead_letters(pool)) == 1
+
+
+async def test_an_event_the_read_model_rejects_is_dead_lettered(pool):
+    # Two events for one sale: the second breaks reports.sales' primary key, every time.
+    async with pool.connection() as conn:
+        await publish(conn, sale_payload("sale_twice", NOW, [("prd_espresso", 1, 300)]))
+        second = await publish(conn, sale_payload("sale_twice", NOW, [("prd_espresso", 1, 300)]))
+
+    assert await consume(pool) == 1
+    assert [row[0] for row in await dead_letters(pool)] == [second]
+    assert await sales_count(pool) == 1

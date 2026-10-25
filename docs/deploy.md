@@ -41,7 +41,7 @@ DATABASE_URL=... MODURA_CORS_ORIGINS=https://pos.example uv run python -m modura
 | `MODURA_REPORTS_POLL_SECONDS` | no | `1` | How often the consumer reads the outbox. |
 | `MODURA_OPENAPI` | no | `generated/openapi/reports-py.json` | The contract it serves. |
 
-Build the UI with `VITE_REPORTS_URL` set to the service's public URL, and give the API the same origin in `MODURA_CSP_CONNECT_SRC`. `/healthz` shows `asOf`, the newest sale the projection has applied; if it stops moving while sales continue, the consumer is stuck (see the logs) or not running.
+Build the UI with `VITE_REPORTS_URL` set to the service's public URL, and give the API the same origin in `MODURA_CSP_CONNECT_SRC`. `/healthz` shows `asOf`, the newest sale the projection has applied; if it stops moving while sales continue, the consumer is stuck (see the logs) or not running. `"status": "degraded"` means `consumer.deadLetters` events could not be applied and are missing from the reports: the logs and `reports.dead_letters` hold the errors, and `apps/reports-py/migrations/0002_dead_letters.sql` says how to replay them after a fix.
 
 ## What happens on start
 

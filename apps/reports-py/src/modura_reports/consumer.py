@@ -16,6 +16,9 @@ transaction in any database on the same server (a backup, a stuck session, anoth
 service's tests) holds it back. Reading only below it would stall the reports for
 as long as that transaction runs. Reading every visible row keeps them current, and
 the long transaction only makes the re-read window bigger.
+
+An event that can never be applied goes to reports.dead_letters instead of failing
+every round and holding back the events after it.
 """
 
 from __future__ import annotations
@@ -23,13 +26,21 @@ from __future__ import annotations
 import asyncio
 import logging
 
-from psycopg import AsyncConnection
+from uuid import UUID
+
+from psycopg import AsyncConnection, errors
 from psycopg_pool import AsyncConnectionPool
+from pydantic import ValidationError
 
 from .projection import SALE_COMPLETED, apply_sale_completed
 
 CONSUMER = "reports.sales"
 SUBSCRIBED = [SALE_COMPLETED]
+
+# Failures that repeat on every attempt: the payload does not match the event model, or
+# the read model's constraints or types reject it. Anything else (a lost connection, a
+# deadlock) fails the round instead, and the next round retries it.
+POISON = (ValidationError, errors.IntegrityError, errors.DataError)
 
 log = logging.getLogger("modura.reports.consumer")
 
@@ -63,8 +74,13 @@ async def consume_once(conn: AsyncConnection) -> int:
         applied = 0
         latest = None
         for event_id, event, payload, occurred_at in rows:
-            if event == SALE_COMPLETED and await apply_sale_completed(conn, event_id, payload):
-                applied += 1
+            try:
+                # A savepoint per event, so a failed one rolls back alone.
+                async with conn.transaction():
+                    if event == SALE_COMPLETED and await apply_sale_completed(conn, event_id, payload):
+                        applied += 1
+            except POISON as error:
+                await dead_letter(conn, event_id, error)
             latest = occurred_at if latest is None else max(latest, occurred_at)
 
         await conn.execute(
@@ -73,6 +89,18 @@ async def consume_once(conn: AsyncConnection) -> int:
             (horizon, latest, CONSUMER),
         )
     return applied
+
+
+async def dead_letter(conn: AsyncConnection, event_id: UUID, error: Exception) -> None:
+    """Records an event that can never be applied, and claims it in the inbox so later
+    rounds skip it. A dead letter is already in the inbox, so it is never recorded twice."""
+    await conn.execute(
+        "INSERT INTO reports.dead_letters (event_id, event, tx, payload, error) "
+        "SELECT event_id, event, tx, payload, %s FROM public.outbox WHERE event_id = %s",
+        (str(error), event_id),
+    )
+    await conn.execute("INSERT INTO reports.inbox (event_id) VALUES (%s)", (event_id,))
+    log.error("dead-lettered event %s: %s", event_id, error)
 
 
 async def run(pool: AsyncConnectionPool, interval_seconds: float, stop: asyncio.Event) -> None:

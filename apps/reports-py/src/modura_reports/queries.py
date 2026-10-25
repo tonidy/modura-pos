@@ -32,6 +32,12 @@ async def as_of(conn: AsyncConnection) -> datetime | None:
     return row[0] if row else None
 
 
+async def dead_letters(conn: AsyncConnection) -> tuple[int, datetime | None]:
+    """How many events the consumer set aside, and when the last one failed."""
+    count, last = await (await conn.execute("SELECT count(*), max(failed_at) FROM reports.dead_letters")).fetchone()
+    return count, last
+
+
 async def _top_products(conn: AsyncConnection, start: datetime, end: datetime, limit: int) -> list[ReportsProductSales]:
     rows = await (
         await conn.execute(
