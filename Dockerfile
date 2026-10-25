@@ -2,11 +2,13 @@
 # One image for the live demo: the Go API serves the contract and the built POS UI
 # from the same origin, so there is no CORS to configure. See docs/deploy.md.
 
-FROM docker.io/library/node:24-alpine AS web
+FROM docker.io/library/node:26-alpine AS web
 WORKDIR /src
-RUN corepack enable
 COPY . .
-RUN pnpm install --frozen-lockfile --filter "@modura/pos-web..." \
+# Node 25 and later ship without corepack, so pnpm comes from npm at the exact
+# version package.json's packageManager names.
+RUN npm install --global "$(node -p "require('./package.json').packageManager")" \
+ && pnpm install --frozen-lockfile --filter "@modura/pos-web..." \
  && pnpm --filter @modura/pos-web run build
 
 FROM docker.io/library/golang:1.27-alpine AS api
@@ -16,7 +18,7 @@ RUN go mod download
 COPY apps/sales-go ./
 RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/sales-api ./cmd/sales-api
 
-FROM gcr.io/distroless/static-debian12:nonroot
+FROM gcr.io/distroless/static-debian13:nonroot
 WORKDIR /app
 COPY --from=api /out/sales-api /app/sales-api
 COPY db /app/db

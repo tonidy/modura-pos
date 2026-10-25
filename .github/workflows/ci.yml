@@ -23,7 +23,7 @@ jobs:
   ts:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - uses: ./.github/actions/setup
@@ -56,7 +56,7 @@ jobs:
       DATABASE_URL: postgres://modura:modura@localhost:5432/modura?sslmode=disable
       MODURA_REQUIRE_DB: "1"
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
         with:
           go: "true"
@@ -85,7 +85,7 @@ jobs:
       DATABASE_URL: postgres://modura:modura@localhost:5432/modura?sslmode=disable
       MODURA_REQUIRE_DB: "1"
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
         with:
           uv: "true"
@@ -96,7 +96,7 @@ jobs:
   generate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
         with:
           install: "true"
@@ -110,7 +110,7 @@ jobs:
   demo:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - uses: ./.github/actions/setup
@@ -118,6 +118,12 @@ jobs:
           install: "true"
           go: "true"
           uv: "true"
+      # Step 4 of the demo expects tsc and go build to fail. Without these problem
+      # matchers (registered by setup-node and setup-go), those expected errors would
+      # show as failure annotations on a passing run.
+      - run: |
+          echo "::remove-matcher owner=tsc::"
+          echo "::remove-matcher owner=go::"
       - run: pnpm demo
 
   # Pull requests only: compare against the base branch (needs its history).
@@ -125,7 +131,7 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - uses: ./.github/actions/setup
@@ -160,7 +166,7 @@ jobs:
     env:
       MODURA_REQUIRE_DB: "1"
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
         with:
           install: "true"
@@ -170,7 +176,7 @@ jobs:
       # live outside the cache, so they are installed on every run.
       - id: playwright
         run: echo "version=$(node -p "require('./tests/e2e/package.json').devDependencies['@playwright/test']")" >> "$GITHUB_OUTPUT"
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         id: browsers
         with:
           path: ~/.cache/ms-playwright
@@ -183,7 +189,7 @@ jobs:
         env:
           E2E_DATABASE_URL: postgres://modura:modura@localhost:5432/modura_e2e?sslmode=disable
           DATABASE_URL: postgres://modura:modura@localhost:5432/modura?sslmode=disable
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: playwright-traces
@@ -192,10 +198,10 @@ jobs:
   image:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: docker/setup-buildx-action@v3
+      - uses: actions/checkout@v7
+      - uses: docker/setup-buildx-action@v4
       - name: Build the deployable image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           tags: modura-pos:ci

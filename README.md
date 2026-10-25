@@ -10,7 +10,7 @@ The part worth inspecting is checkout. `sales.createSale` deducts stock exactly 
 
 ## A five-minute walkthrough
 
-Requirements: Node 24 and pnpm 12 (pinned in `mise.toml`), Go 1.27, uv (it fetches Python 3.14 itself), and Docker or Podman with Compose. The platform comes from npm (`@modura/*`), so no other checkout is needed.
+Requirements: Node 26 and pnpm 12 (pinned in `mise.toml`), Go 1.27, uv (it fetches Python 3.15 itself), and Docker or Podman with Compose. The platform comes from npm (`@modura/*`), so no other checkout is needed.
 
 ```sh
 pnpm install

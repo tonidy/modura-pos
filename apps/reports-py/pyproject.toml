@@ -2,7 +2,7 @@
 name = "modura-reports"
 version = "0.1.0"
 description = "Modura reports service: sales reports built from the sales.saleCompleted outbox."
-requires-python = ">=3.14"
+requires-python = ">=3.15"
 dependencies = [
     "fastapi==0.143.0",
     "uvicorn==0.54.0",
@@ -16,7 +16,7 @@ dependencies = [
 dev = [
     "pytest==9.1.1",
     "httpx==0.28.1",
-    "datamodel-code-generator==0.83.0",
+    "datamodel-code-generator==0.86.0",
 ]
 
 [build-system]
