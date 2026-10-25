@@ -8,10 +8,10 @@ name: CI
 # Jobs that touch Postgres have their own service container and MODURA_REQUIRE_DB=1,
 # so a missing database fails the run instead of skipping tests.
 
-# Manual runs only. The POS reaches the platform through pnpm overrides that link to the
-# sibling folder ../modura, which GitHub's runners cannot see. The push and pull_request
-# triggers come back in plan M9, step 5, when the POS installs the platform from JSR.
 on:
+  push:
+    branches: [main]
+  pull_request:
   workflow_dispatch:
 
 env:

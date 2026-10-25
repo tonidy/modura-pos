@@ -9,18 +9,14 @@
 #   5. Fix both, and everything compiles again.
 #
 # It runs in a throwaway git worktree of HEAD, so your working tree is never touched.
-# The platform is a sibling repository (../modura) that the pnpm overrides link to with
-# relative paths, so the worktree is created as <tmp>/modura-pos next to a symlink
-# <tmp>/modura, and those paths resolve there too. Set DEMO_REF to use another commit.
+# Set DEMO_REF to use another commit.
 # It fails if any step behaves differently, which makes it a check as well as a demo.
 # Output lines starting with "### " and "$ " are read by scripts/record-demo.ts.
 set -uo pipefail
 
 root="$(git rev-parse --show-toplevel)"
-platform="$(cd "$root/../modura" && pwd -P)" || { echo "The platform repository must be at ../modura" >&2; exit 1; }
 tmp="$(mktemp -d)"
 work="$tmp/modura-pos"
-ln -s "$platform" "$tmp/modura"
 git -C "$root" worktree add --detach --quiet "$work" "${DEMO_REF:-HEAD}"
 trap 'git -C "$root" worktree remove --force "$work"; rm -rf "$tmp"' EXIT
 cd "$work"

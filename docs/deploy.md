@@ -21,8 +21,6 @@ Never commit `DATABASE_URL`. Set it as a platform secret.
 
 The nightly demo reset clears POS data only. The event outbox survives it, so the reports keep their history.
 
-The image cannot be built yet: the `Dockerfile` installs the Modura platform with the rest of the workspace, and until the platform's first release is on JSR it comes from a sibling checkout (`../modura`) that a Docker build cannot see.
-
 ## Reports service (Python)
 
 The image above does not include it yet; deploying it is outside M7. To run it next to the API (`pnpm reports` does this locally):

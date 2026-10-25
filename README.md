@@ -10,7 +10,7 @@ The part worth inspecting is checkout. `sales.createSale` deducts stock exactly 
 
 ## A five-minute walkthrough
 
-Requirements: Node 24 (pinned in `mise.toml`), pnpm 10, Go 1.27, uv (it fetches Python 3.14 itself), and Docker or Podman with Compose. Until the platform's first release is on JSR, the platform is read from a checkout next to this one, so clone [modura-platform](https://github.com/tonidy/modura-platform) as `../modura` and run `pnpm install` there first.
+Requirements: Node 24 and pnpm 12 (pinned in `mise.toml`), Go 1.27, uv (it fetches Python 3.14 itself), and Docker or Podman with Compose. The platform comes from npm (`@modura/*`), so no other checkout is needed.
 
 ```sh
 pnpm install
@@ -143,10 +143,8 @@ Nothing is listed as shipped unless a command, a test or a file proves it.
 
 | Not shipped | Status |
 |---|---|
-| Installing the platform from JSR | Waits for the platform's first release; until then `pnpm-workspace.yaml` links `../modura` |
-| CI on GitHub | The workflow exists but only runs on manual dispatch, because GitHub's runners cannot see `../modura`; push and pull request triggers come back with JSR |
-| The container image | The `Dockerfile` needs the platform from JSR as well, and does not include the Python service yet |
-| Public live demo | Needs the image and a hosting account |
+| The Python service in the container image | The image holds the Go API and the UI only |
+| Public live demo | Needs a hosting account |
 | Payments, tax, discounts, multi-currency | Out of scope |
 
 ## Development
