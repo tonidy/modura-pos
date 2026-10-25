@@ -185,7 +185,7 @@ packages/pos-sdk                    the TypeScript client generated from the con
 apps/sales-go                       Go API: generated interfaces, contract middleware, checkout, outbox, demo jobs
 apps/reports-py                     Python reports API (uv, FastAPI): generated models, outbox consumer, projection
 apps/pos-web                        React cashier UI
-scripts/                            CLI and MCP wrappers, the schema-change demo, README media
+scripts/                            the schema-change demo, README media
 tests/e2e                           Playwright: UI to Postgres, MCP client
 db/                                 migrations, demo seed, reset script
 docs/                               ADRs and the deploy runbook

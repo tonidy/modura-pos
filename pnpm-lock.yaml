@@ -167,11 +167,11 @@ importers:
   .:
     devDependencies:
       '@modura/cli':
-        specifier: 1.0.0-rc.3
-        version: 1.0.0-rc.3
+        specifier: 1.0.0-rc.4
+        version: 1.0.0-rc.4
       '@modura/mcp-server':
-        specifier: 1.0.0-rc.3
-        version: 1.0.0-rc.3(supports-color@7.2.0)(zod@4.6.7)
+        specifier: 1.0.0-rc.4
+        version: 1.0.0-rc.4(supports-color@7.2.0)(zod@4.6.7)
       '@modura/module-catalog':
         specifier: workspace:*
         version: link:modules/catalog
@@ -235,8 +235,8 @@ importers:
   modules/catalog:
     dependencies:
       '@modura/schema':
-        specifier: 1.0.0-rc.3
-        version: 1.0.0-rc.3
+        specifier: 1.0.0-rc.4
+        version: 1.0.0-rc.4
 
   modules/inventory:
     dependencies:
@@ -244,8 +244,8 @@ importers:
         specifier: workspace:*
         version: link:../catalog
       '@modura/schema':
-        specifier: 1.0.0-rc.3
-        version: 1.0.0-rc.3
+        specifier: 1.0.0-rc.4
+        version: 1.0.0-rc.4
 
   modules/reports:
     dependencies:
@@ -253,8 +253,8 @@ importers:
         specifier: workspace:*
         version: link:../catalog
       '@modura/schema':
-        specifier: 1.0.0-rc.3
-        version: 1.0.0-rc.3
+        specifier: 1.0.0-rc.4
+        version: 1.0.0-rc.4
 
   modules/sales:
     dependencies:
@@ -262,14 +262,14 @@ importers:
         specifier: workspace:*
         version: link:../catalog
       '@modura/schema':
-        specifier: 1.0.0-rc.3
-        version: 1.0.0-rc.3
+        specifier: 1.0.0-rc.4
+        version: 1.0.0-rc.4
 
   packages/pos-sdk:
     dependencies:
       '@modura/sdk':
-        specifier: 1.0.0-rc.3
-        version: 1.0.0-rc.3
+        specifier: 1.0.0-rc.4
+        version: 1.0.0-rc.4
 
   scripts:
     devDependencies:
@@ -497,35 +497,37 @@ packages:
       '@cfworker/json-schema':
         optional: true
 
-  '@modura/cli@1.0.0-rc.3':
-    resolution: {integrity: sha512-IcvXkLiT41apvN5R1S/+xb8iLC8YlybvTAeqdvch6GEW1kDPWVh709cFx1fvUSXsIOY3T/6Or3dfdjMoI8/TXQ==}
+  '@modura/cli@1.0.0-rc.4':
+    resolution: {integrity: sha512-c1zP/+ZHN6GdHd5crDBCpsMo9+5Z4LbD6XTMRGO2LtsVsQLbeOZx7WfIgNDdtztkYHS/lxUdOgOJ7C2c5IPVZQ==}
+    hasBin: true
 
-  '@modura/compiler@1.0.0-rc.3':
-    resolution: {integrity: sha512-/MeTsLu7lvEqMnW1GLBmfC+9lB0EJoV2rfLJgUL2TxshrPUpjQhCMozyxh2R2vElqxkwBL0VrT5NKbr3q6OJ/Q==}
+  '@modura/compiler@1.0.0-rc.4':
+    resolution: {integrity: sha512-zCZcOZxM3YuMXbb/dvCx7Af76y6YSrgFxLeoXSWFeQeK3Ki7hkSGLg2uc6qVZW8XbOofRIWLUWhiWmXTGCdkrQ==}
 
-  '@modura/generator-mcp@1.0.0-rc.3':
-    resolution: {integrity: sha512-JsW+UXNHMqWdQmLTTNM3a2UnO+FWx1sZBxVmpclDeqiCCKWA41ttAKOuDmassn/qPaO5qtHDSIszGTF+OpXvZQ==}
+  '@modura/generator-mcp@1.0.0-rc.4':
+    resolution: {integrity: sha512-y1/vwZU4Z8TtghKEkYv6WAV1l5TY14LSq298GtlHObY0LVw+YIGcObYFSxR7fq+VAoGYPKt+pcpKMCcJaS5qWw==}
 
-  '@modura/generator-openapi@1.0.0-rc.3':
-    resolution: {integrity: sha512-7yYq4upq3wg6tfb24iCXnvaBLGsDQ2zKlogaJdAZwueIQxXT4EqB19njfN5RdA8SWmKD5pDX8xYjEZBCFhkWoQ==}
+  '@modura/generator-openapi@1.0.0-rc.4':
+    resolution: {integrity: sha512-aGcJ9x83IE4uUoqXZ6/eIiGv3Oi6Fm9onVsL5UJF2Ht1RyOEole3duhqLP/iup5LQ09FvcEsXMHm1ojoQrlpEg==}
 
-  '@modura/generator-sdk-ts@1.0.0-rc.3':
-    resolution: {integrity: sha512-4VGLmMCDfx1wyKbxIGjqassiAZjwpu2/ojbV8KgtGgokJyvm3S86rcwZhPGlWUg4r/9w6wPdslCE77X5jDR8Kg==}
+  '@modura/generator-sdk-ts@1.0.0-rc.4':
+    resolution: {integrity: sha512-WCrR2QDJMfYkWM/RBcCUv9ODPsr0/FsNz6/Yl7sD+U2brwinzPx9OzCRFTJJOrtT2tuj7ckI+O0giihNO3i2YA==}
 
-  '@modura/mcp-server@1.0.0-rc.3':
-    resolution: {integrity: sha512-7uKr5b/CbY+JAURJNSRrD88ot0i+3V9p3nuLzcB6SVPgRwbltyax10XL4/X14v3kbrbWDLflZfbrlUTneLT6rA==}
+  '@modura/mcp-server@1.0.0-rc.4':
+    resolution: {integrity: sha512-ucTvD1CoFszVHjgx1kBBBa9yKq27b++6Cf+7+YE2ZPNL4lmqu+W94uSPjiIR+1pS/iKV6Ohy5x7+7Lw0XF3kaA==}
+    hasBin: true
 
-  '@modura/module-registry@1.0.0-rc.3':
-    resolution: {integrity: sha512-gA1MAwLHpkpaTtq6Obk9NIzdSI3cW3svEgI+H5hXfs3DSYz4oE2Fyiocn4BY+2EF1DEGJUPUaQFH5nOPfV40Ww==}
+  '@modura/module-registry@1.0.0-rc.4':
+    resolution: {integrity: sha512-6TuOEDX1VzsnjZ/07wkf46uC9RR1C7phL3HBVnes83RsJhBITbY+gjMd3IXaMHuh4jttCdz38c8HCIENjFAx/Q==}
 
-  '@modura/runtime-contracts@1.0.0-rc.3':
-    resolution: {integrity: sha512-kZWmEqmdBYRf3sd2qOC2Cv64O76oGgMt+Fkuk66y1tOmlDilzTZ+LyQOQoU4r0kabgPEYF67guA/YVnfErpOIQ==}
+  '@modura/runtime-contracts@1.0.0-rc.4':
+    resolution: {integrity: sha512-7CJlM1j7ln48er4Ro4KQ0Qscib0W4jeDButNUrTWFJTw9hra4of7M6aqc3JNLkyWTRlyKgcDWixHFTuAFcvmSQ==}
 
-  '@modura/schema@1.0.0-rc.3':
-    resolution: {integrity: sha512-sJq0+ojlK7HbEYbQXQjgAI8vvrpUHzsSqkjDIxXrhqkBXR07Maw1IO9HFlHCIyzivxPiIkW/9GdNevh+soItXg==}
+  '@modura/schema@1.0.0-rc.4':
+    resolution: {integrity: sha512-glzLa/nOd6hUrhmIkgAWOKkTZzjfwWkqxHFWfSsANMMLy3y/RulpGfDl+cEWI07M/F15RWZ+K5usTWv/UDNqsQ==}
 
-  '@modura/sdk@1.0.0-rc.3':
-    resolution: {integrity: sha512-IFhybmY0XgsLABUHWqbhwGHkYaA6xElfj8NzkZe9SXdA1gX7ntwq0F62mEN9yT7n8CefdSNxVSIvY+cuIFCLAQ==}
+  '@modura/sdk@1.0.0-rc.4':
+    resolution: {integrity: sha512-PBnPqt0Y1sPjVKmm1+88x15w608VDItzoyf9GeWiiWnUaoS8FZlZwOTyu2YnhNbHmU7eaijpnlPXEjjduqJQhg==}
 
   '@napi-rs/wasm-runtime@0.2.4':
     resolution: {integrity: sha512-9zESzOO5aDByvhIAsOy9TbpZ0Ur2AJbUI7UT73kcUTS2mxAMHOBaa1st/jAymNoCtvrit99kkzT1FZuXVcgfIQ==}
@@ -2175,58 +2177,58 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@modura/cli@1.0.0-rc.3':
+  '@modura/cli@1.0.0-rc.4':
     dependencies:
-      '@modura/compiler': 1.0.0-rc.3
-      '@modura/generator-mcp': 1.0.0-rc.3
-      '@modura/generator-openapi': 1.0.0-rc.3
-      '@modura/generator-sdk-ts': 1.0.0-rc.3
-      '@modura/module-registry': 1.0.0-rc.3
-      '@modura/schema': 1.0.0-rc.3
-      '@modura/sdk': 1.0.0-rc.3
+      '@modura/compiler': 1.0.0-rc.4
+      '@modura/generator-mcp': 1.0.0-rc.4
+      '@modura/generator-openapi': 1.0.0-rc.4
+      '@modura/generator-sdk-ts': 1.0.0-rc.4
+      '@modura/module-registry': 1.0.0-rc.4
+      '@modura/schema': 1.0.0-rc.4
+      '@modura/sdk': 1.0.0-rc.4
       ajv: 8.20.0
 
-  '@modura/compiler@1.0.0-rc.3':
+  '@modura/compiler@1.0.0-rc.4':
     dependencies:
-      '@modura/runtime-contracts': 1.0.0-rc.3
-      '@modura/schema': 1.0.0-rc.3
+      '@modura/runtime-contracts': 1.0.0-rc.4
+      '@modura/schema': 1.0.0-rc.4
       ajv: 8.20.0
       fast-check: 4.10.2
 
-  '@modura/generator-mcp@1.0.0-rc.3':
+  '@modura/generator-mcp@1.0.0-rc.4':
     dependencies:
-      '@modura/compiler': 1.0.0-rc.3
-      '@modura/generator-openapi': 1.0.0-rc.3
+      '@modura/compiler': 1.0.0-rc.4
+      '@modura/generator-openapi': 1.0.0-rc.4
 
-  '@modura/generator-openapi@1.0.0-rc.3':
+  '@modura/generator-openapi@1.0.0-rc.4':
     dependencies:
-      '@modura/compiler': 1.0.0-rc.3
-      '@modura/runtime-contracts': 1.0.0-rc.3
+      '@modura/compiler': 1.0.0-rc.4
+      '@modura/runtime-contracts': 1.0.0-rc.4
 
-  '@modura/generator-sdk-ts@1.0.0-rc.3':
+  '@modura/generator-sdk-ts@1.0.0-rc.4':
     dependencies:
-      '@modura/compiler': 1.0.0-rc.3
+      '@modura/compiler': 1.0.0-rc.4
 
-  '@modura/mcp-server@1.0.0-rc.3(supports-color@7.2.0)(zod@4.6.7)':
+  '@modura/mcp-server@1.0.0-rc.4(supports-color@7.2.0)(zod@4.6.7)':
     dependencies:
       '@modelcontextprotocol/sdk': 1.32.1(supports-color@7.2.0)(zod@4.6.7)
-      '@modura/sdk': 1.0.0-rc.3
+      '@modura/sdk': 1.0.0-rc.4
     transitivePeerDependencies:
       - '@cfworker/json-schema'
       - supports-color
       - zod
 
-  '@modura/module-registry@1.0.0-rc.3':
+  '@modura/module-registry@1.0.0-rc.4':
     dependencies:
-      '@modura/schema': 1.0.0-rc.3
+      '@modura/schema': 1.0.0-rc.4
 
-  '@modura/runtime-contracts@1.0.0-rc.3': {}
+  '@modura/runtime-contracts@1.0.0-rc.4': {}
 
-  '@modura/schema@1.0.0-rc.3':
+  '@modura/schema@1.0.0-rc.4':
     dependencies:
-      '@modura/runtime-contracts': 1.0.0-rc.3
+      '@modura/runtime-contracts': 1.0.0-rc.4
 
-  '@modura/sdk@1.0.0-rc.3': {}
+  '@modura/sdk@1.0.0-rc.4': {}
 
   '@napi-rs/wasm-runtime@0.2.4':
     dependencies:

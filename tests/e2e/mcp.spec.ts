@@ -8,7 +8,7 @@ import { expect, test } from '@playwright/test';
 import { query } from './db';
 
 // Plan M5 against the real stack: a real MCP client reads through the MCP server, which
-// runs from the platform package through scripts/mcp.ts. No browser needed.
+// runs from the platform package's `modura-mcp` bin. No browser needed.
 test.describe.configure({ mode: 'serial' });
 
 const root = fileURLToPath(new URL('../..', import.meta.url));
@@ -17,8 +17,7 @@ const reports = `http://localhost:${process.env.E2E_REPORTS_PORT ?? '18091'}`;
 
 async function mcpClient(env: Record<string, string> = {}) {
   const transport = new StdioClientTransport({
-    command: join(root, 'node_modules/.bin/tsx'),
-    args: [join(root, 'scripts/mcp.ts')],
+    command: join(root, 'node_modules/.bin/modura-mcp'),
     cwd: root,
     env: {
       PATH: process.env.PATH ?? '',

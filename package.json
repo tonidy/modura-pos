@@ -11,8 +11,8 @@
     "web": "pnpm --filter @modura/pos-web run dev",
     "e2e": "pnpm --filter @modura/e2e run e2e",
     "demo": "bash scripts/demo-schema-change.sh",
-    "modura": "tsx scripts/modura.ts",
-    "mcp": "tsx scripts/mcp.ts",
+    "modura": "modura",
+    "mcp": "modura-mcp",
     "generate": "pnpm modura generate && pnpm --filter @modura/sales-go --filter @modura/reports-py run generate",
     "api": "DATABASE_URL=${DATABASE_URL:-postgres://modura:modura@localhost:${MODURA_PG_PORT:-55433}/modura?sslmode=disable} go -C apps/sales-go run ./cmd/sales-api",
     "reports": "DATABASE_URL=${DATABASE_URL:-postgres://modura:modura@localhost:${MODURA_PG_PORT:-55433}/modura?sslmode=disable} MODURA_CORS_ORIGINS=${MODURA_CORS_ORIGINS:-http://localhost:5173} uv --directory apps/reports-py run python -m modura_reports",
@@ -23,16 +23,16 @@
   "nx": {
     "targets": {
       "generate-check": {
-        "command": "tsx scripts/modura.ts generate --check --strict"
+        "command": "modura generate --check --strict"
       },
       "registry-check": {
-        "command": "tsx scripts/modura.ts registry verify && tsx scripts/modura.ts compat --against registry"
+        "command": "modura registry verify && modura compat --against registry"
       }
     }
   },
   "devDependencies": {
-    "@modura/cli": "1.0.0-rc.3",
-    "@modura/mcp-server": "1.0.0-rc.3",
+    "@modura/cli": "1.0.0-rc.4",
+    "@modura/mcp-server": "1.0.0-rc.4",
     "@modura/module-catalog": "workspace:*",
     "@modura/module-inventory": "workspace:*",
     "@modura/module-reports": "workspace:*",

@@ -13,13 +13,13 @@ allowBuilds:
 # Platform packages are published to npm and pinned by version in package manifests.
 
 minimumReleaseAgeExclude:
-  - '@modura/cli@1.0.0-rc.3'
-  - '@modura/compiler@1.0.0-rc.3'
-  - '@modura/generator-mcp@1.0.0-rc.3'
-  - '@modura/generator-openapi@1.0.0-rc.3'
-  - '@modura/generator-sdk-ts@1.0.0-rc.3'
-  - '@modura/mcp-server@1.0.0-rc.3'
-  - '@modura/module-registry@1.0.0-rc.3'
-  - '@modura/runtime-contracts@1.0.0-rc.3'
-  - '@modura/schema@1.0.0-rc.3'
-  - '@modura/sdk@1.0.0-rc.3'
+  - '@modura/cli@1.0.0-rc.4'
+  - '@modura/compiler@1.0.0-rc.4'
+  - '@modura/generator-mcp@1.0.0-rc.4'
+  - '@modura/generator-openapi@1.0.0-rc.4'
+  - '@modura/generator-sdk-ts@1.0.0-rc.4'
+  - '@modura/mcp-server@1.0.0-rc.4'
+  - '@modura/module-registry@1.0.0-rc.4'
+  - '@modura/runtime-contracts@1.0.0-rc.4'
+  - '@modura/schema@1.0.0-rc.4'
+  - '@modura/sdk@1.0.0-rc.4'
